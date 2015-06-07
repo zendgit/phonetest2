@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Device Properties Example</title>
+
+    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/angular.js"></script>
+<!--	
+    <script type="text/javascript" charset="utf-8" src="js/lodash.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/restangular.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+-->	
+	
+    <script type="text/javascript" charset="utf-8">
+
+    // Wait for device API libraries to load
+    //
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+    // device APIs are available
+    //
+    function onDeviceReady() {
+		//angular.bootstrap(document, ['YourAppName']);
+        log1('Device Model: '    + device.model    + '<br />' +
+                            'Device Cordova: '  + device.cordova  + '<br />' +
+                            'Device Platform: ' + device.platform + '<br />' +
+                            'Device UUID: '     + device.uuid     + '<br />' +
+                            'Device Version: '  + device.version  + '<br />');
+    }
+
+	function onSuccess(contacts) {
+		log1('success<br>');
+		for (var i = 0; i < contacts.length; i++) {
+			log1("Display Name = " + contacts[i].displayName + contacts[i].id + contacts[i].name.formatted + contacts[i].nickname + contacts[i].id   );
+			log1("JSON: "+JSON.stringify(contacts[i]));			
+		}
+	}
+
+	// onError: Failed to get the contacts
+
+	function onError(contactError) {
+		log1('error='+contactError);
+		alert('onError!');
+	}
+
+	function test1(){
+		log1('click2<BR>');
+
+		var options = new ContactFindOptions();
+		options.filter = document.getElementById('idfilter').value;
+		//options.multiple = true;		//works very long on my android
+		var fields = ["displayName", "name"];
+		navigator.contacts.find(fields, onSuccess, onError, options);
+				
+		log1('click finish2<BR>');
+	}
+	
+	function log1(mess){
+        var element = document.getElementById('deviceProperties');
+        element.innerHTML = element.innerHTML + mess;
+	}
+
+	function test2(){
+		navigator.camera.getPicture(onSuccessPic, onFailPic, { quality: 100,
+			destinationType: Camera.DestinationType.DATA_URL
+		});
+	}
+	
+
+	function onSuccessPic(imageData) {
+		var image = document.getElementById('myImage');
+		image.src = "data:image/jpeg;base64," + imageData;
+	}
+
+	function onFailPic(message) {
+		alert('Failed because: ' + message);
+	}
+
+	function test3(){
+		var options = { enableHighAccuracy: true };	
+		navigator.geolocation.getCurrentPosition(onSuccessGeo, onErrorGeo, options);	
+	}
+	
+	var onSuccessGeo = function(position) {
+		log1('Latitude: '          + position.coords.latitude          + '<br>' +
+			  'Longitude: '         + position.coords.longitude         + '<br>' +
+			  'Altitude: '          + position.coords.altitude          + '<br>' +
+			  'Accuracy: '          + position.coords.accuracy          + '<br>' +
+			  'Altitude Accuracy: ' + position.coords.altitudeAccuracy  + '<br>' +
+			  'Heading: '           + position.coords.heading           + '<br>' +
+			  'Speed: '             + position.coords.speed             + '<br>' +
+			  'Timestamp: '         + position.timestamp                + '<br>');
+
+		//angular.element('[ng-controller=PhonetestCtrl]').scope().newItem.lng = position.coords.longitude;
+	};
+	
+	// onError Callback receives a PositionError object
+	//
+	function onErrorGeo(error) {
+		alert('code: '    + error.code    + '\n' +
+			  'message: ' + error.message + '\n');
+	}
+
+
+	
+angular.module( 'ngPhonetest', [
+	
+])
+
+.controller( 'PhonetestCtrl', function AppCtrl ( $scope ) {
+	
+	$scope.newItem = {}
+	$scope.newItem.lng = 0;
+	$scope.newItem.lat = 0;
+	$scope.newItem.img = [];
+	
+})
+;
+	
+    </script>
+  </head>
+  <body ng-app="ngPhonetest" ng-controller="PhonetestCtrl">
+    <p id="deviceProperties">Loading device properties...</p>
+	<input type="text" size="5" id="idfilter" value="a">
+	<button onclick="test1()">Click1</button><br/>
+	<button onclick="test2()">Click2</button>
+	<button onclick="test3()">Click3</button>
+	
+	<button ng-click="getList()">Get List</button>
+	<button ng-click="addItem()">Add Item</button>
+	NEWITEM: {{newItem}}
+	{{itemList}}
+
+	<img src="" id="myImage" width="300" style="width:300px;">
+  </body>
+</html>
